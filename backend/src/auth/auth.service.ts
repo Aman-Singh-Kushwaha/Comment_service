@@ -15,6 +15,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     const user = await this.usersService.create({
       username: registerDto.username,
+      email: registerDto.email,
       passwordHash: hashedPassword,
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

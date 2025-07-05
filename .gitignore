@@ -25,4 +25,4 @@ next-env.d.ts
 
 # dev documentation
 docs/
-
+.gemini/

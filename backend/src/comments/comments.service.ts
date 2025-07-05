@@ -20,31 +20,44 @@ export class CommentsService {
     return this.commentRepository.save(newComment);
   }
 
-  async findAll(): Promise<any[]> {
-    const comments = await this.commentRepository
-      .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.author', 'author')
-      .where('comment.parentId IS NULL')
-      .orderBy('comment.createdAt', 'DESC')
-      .getMany();
+  private getChildrenCountSubquery() {
+    return this.commentRepository
+      .createQueryBuilder('sub_comment')
+      .select('COUNT(*)')
+      .where('sub_comment.parentId = comment.id')
+      .andWhere('sub_comment.is_deleted = false')
+      .getQuery();
+  }
 
-    return Promise.all(comments.map(async (comment) => {
-      const childrenCount = await this.commentRepository.count({ where: { parentId: comment.id } });
-      return { ...comment, childrenCount };
-    }));
+  private getCommentQueryBuilder() {
+    return this.commentRepository
+      .createQueryBuilder('comment')
+      .select([
+        'comment.id',
+        'comment.content',
+        'comment.parentId',
+        'comment.isEdited',
+        'comment.createdAt',
+        'author.id',
+        'author.username',
+      ])
+      .addSelect(`(${this.getChildrenCountSubquery()})`, 'childrenCount')
+      .leftJoin('comment.author', 'author')
+      .where('comment.isDeleted = false');
+  }
+
+  async findAll(): Promise<any[]> {
+    return this.getCommentQueryBuilder()
+      .andWhere('comment.parentId IS NULL')
+      .orderBy('comment.createdAt', 'DESC')
+      .getRawMany();
   }
 
   async findReplies(parentId: string): Promise<any[]> {
-    const replies = await this.commentRepository
-      .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.author', 'author')
-      .where('comment.parentId = :parentId', { parentId })
-      .orderBy('comment.createdAt', 'ASC')
-      .getMany();
-    
-    return Promise.all(replies.map(async (reply) => {
-      const childrenCount = await this.commentRepository.count({ where: { parentId: reply.id } });
-      return { ...reply, childrenCount };
-    }));
+    return this.getCommentQueryBuilder()
+      .andWhere('comment.parentId = :parentId', { parentId })
+      .orderBy('comment.createdAt', 'DESC')
+      .getRawMany();
   }
 }
+
