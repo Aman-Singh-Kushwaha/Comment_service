@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class CommentsService {
@@ -59,5 +64,39 @@ export class CommentsService {
       .orderBy('comment.createdAt', 'DESC')
       .getRawMany();
   }
-}
 
+  async update(
+    commentId: string,
+    updateCommentDto: UpdateCommentDto,
+    userId: string,
+  ): Promise<Comment> {
+    const comment = await this.commentRepository.findOne({
+      where: { id: commentId },
+      relations: ['author'],
+    });
+
+    if (!comment) {
+      throw new NotFoundException(`Comment with ID ${commentId} not found`);
+    }
+
+    if (comment.author.id !== userId) {
+      throw new ForbiddenException(
+        'Not authorized to edit this comment',
+      );
+    }
+
+    const fifteenMinutes = 15 * 60 * 1000; // 15 minutes in milliseconds
+    const timeElapsed = Date.now() - comment.createdAt.getTime();
+
+    if (timeElapsed > fifteenMinutes) {
+      throw new ForbiddenException(
+        'Comment Editing time window has expired. You can only edit comments within 15 minutes of posting.',
+      );
+    }
+
+    comment.content = updateCommentDto.content;
+    comment.isEdited = true;
+
+    return this.commentRepository.save(comment);
+  }
+}
