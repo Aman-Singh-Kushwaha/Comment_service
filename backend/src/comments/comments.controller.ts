@@ -7,6 +7,9 @@ import {
   Get,
   Param,
   Patch,
+  Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -24,7 +27,10 @@ export class CommentsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto, @Request() req: IRequestWithUser) {
+  create(
+    @Body() createCommentDto: CreateCommentDto,
+    @Request() req: IRequestWithUser,
+  ) {
     return this.commentsService.create(createCommentDto, req.user.id);
   }
 
@@ -46,5 +52,18 @@ export class CommentsController {
     @Request() req: IRequestWithUser,
   ) {
     return this.commentsService.update(id, updateCommentDto, req.user.id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  softDelete(@Param('id') id: string, @Request() req: IRequestWithUser) {
+    return this.commentsService.softDelete(id, req.user.id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id/restore')
+  restore(@Param('id') id: string, @Request() req: IRequestWithUser) {
+    return this.commentsService.restore(id, req.user.id);
   }
 }
