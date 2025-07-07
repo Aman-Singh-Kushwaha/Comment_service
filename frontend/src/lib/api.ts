@@ -1,3 +1,5 @@
+import { LoginCredentials, RegisterData } from '@/types';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // A helper to handle responses
@@ -11,6 +13,26 @@ const handleResponse = async (response: Response) => {
   }
   return response.json();
 };
+
+// Auth
+export const login = async (credentials: LoginCredentials) => {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+  });
+  return handleResponse(response);
+};
+
+export const register = async (data: RegisterData) => {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
 
 // Get top-level comments
 export const getComments = async () => {

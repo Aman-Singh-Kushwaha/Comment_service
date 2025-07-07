@@ -1,40 +1,62 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { login as apiLogin } from '@/lib/api';
+import { jwtDecode } from 'jwt-decode';
 
-// Define the shape of the user and auth context
 interface User {
   id: string;
   username: string;
 }
 
+import { LoginCredentials } from '@/types';
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
 }
 
-// Create the context with a default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock data for development
-const mockUser: User = {
-  id: '49774fed-2090-46f3-93a8-b04d6cd6bc3a', // This ID should correspond to a user in your DB
-  username: 'verify_user_456',
-};
-
-const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZlcmlmeV91c2VyXzQ1NiIsInN1YiI6IjQ5Nzc0ZmVkLTIwOTAtNDZmMy05M2E4LWIwNGQ2Y2Q2YmMzYSIsImlhdCI6MTc1MjAxMDUwOSwiZXhwIjoxNzUyMDE0MTA5fQ.vXRGqZvhGlfqgMRG-lnRgt2jBYQvvNy1wq6fzyUvM4M';
-
-// Create a provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      const decoded = jwtDecode<User>(storedToken);
+      setUser(decoded);
+      setToken(storedToken);
+    }
+  }, []);
+
+  const login = async (credentials: LoginCredentials) => {
+    const { access_token } = await apiLogin(credentials);
+    const decoded = jwtDecode<User>(access_token);
+    localStorage.setItem('token', access_token);
+    setUser(decoded);
+    setToken(access_token);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setToken(null);
+  };
+
   const value = {
-    user: mockUser,
-    token: mockToken,
+    user,
+    token,
+    login,
+    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
