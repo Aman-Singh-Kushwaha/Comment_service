@@ -24,6 +24,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    command: pnpm run dev
     ports:
       - "3001:3001"
     volumes:

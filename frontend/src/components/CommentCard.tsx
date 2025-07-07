@@ -1,9 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { getReplies, deleteComment, updateComment } from '@/lib/api';
 import { CommentForm } from './CommentForm';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Define the shape of a comment
 export interface Comment {
@@ -29,6 +33,7 @@ export const CommentCard = ({ comment, onCommentDeleted }: CommentCardProps) => 
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(comment.comment_content);
+  const router = useRouter();
 
   const handleShowReplies = async () => {
     if (!showReplies) {
@@ -61,59 +66,80 @@ export const CommentCard = ({ comment, onCommentDeleted }: CommentCardProps) => 
     comment.comment_is_edited = true;
   };
 
+  const handleReplyClick = () => {
+    if (!user) {
+      router.push('/login');
+    } else {
+      setIsReplying(!isReplying);
+    }
+  };
+
   return (
-    <div className="p-4 my-2 border rounded-lg bg-gray-900">
-      <div className="flex items-center mb-2">
-        <div className="font-bold">{comment.author_username}</div>
-        <div className="ml-2 text-sm text-gray-400">
-          {new Date(comment.comment_created_at).toLocaleString()}
-        </div>
-        {comment.comment_is_edited && <div className="ml-2 text-sm text-gray-500">(edited)</div>}
-      </div>
-
-      {isEditing ? (
-        <form onSubmit={handleUpdate}>
-          <textarea
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-            className="w-full p-2 border rounded-lg bg-gray-800 text-white"
-            rows={3}
-          ></textarea>
-          <div className="mt-2">
-            <button type="submit" className="px-2 py-1 bg-blue-500 text-white rounded-lg">Save</button>
-            <button onClick={() => setIsEditing(false)} className="ml-2 px-2 py-1 bg-gray-600 text-white rounded-lg">Cancel</button>
+    <Card className="my-4 bg-neutral-100 border-none shadow-none">
+      <CardHeader>
+        <div className="flex items-center space-x-4">
+          <div className="font-bold">{comment.author_username}</div>
+          <div className="text-sm text-muted-foreground">
+            {new Date(comment.comment_created_at).toLocaleDateString("en-US",{
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })} {"   "} {
+              new Date(comment.comment_created_at).toLocaleTimeString("en-US", {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+            }
           </div>
-        </form>
-      ) : (
-        <p className="text-gray-300">{comment.comment_content}</p>
-      )}
-
-      <div className="mt-2 flex items-center space-x-4">
-        {parseInt(comment.childrenCount) > 0 && (
-          <button onClick={handleShowReplies} className="text-sm text-blue-400">
-            {showReplies ? 'Hide' : `Show ${comment.childrenCount} replies`}
-          </button>
+          {comment.comment_is_edited && <div className="text-sm text-muted-foreground">(edited)</div>}
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isEditing ? (
+          <form onSubmit={handleUpdate}>
+            <Textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              rows={3}
+            />
+            <div className="mt-2 space-x-2">
+              <Button type="submit">Save</Button>
+              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+            </div>
+          </form>
+        ) : (
+          <p>{comment.comment_content}</p>
         )}
-        <button onClick={() => setIsReplying(!isReplying)} className="text-sm text-gray-400">Reply</button>
+      </CardContent>
+      <CardFooter className="space-x-4">
+        {parseInt(comment.childrenCount) > 0 && (
+          <Button variant="ghost" onClick={handleShowReplies}>
+            {showReplies ? 'Hide replies' : `Show ${comment.childrenCount} replies`}
+          </Button>
+        )}
+        <Button variant="ghost" onClick={handleReplyClick}>Reply</Button>
         {user?.id === comment.author_id && (
           <>
-            <button onClick={() => setIsEditing(true)} className="text-sm text-gray-400">Edit</button>
-            <button onClick={handleDelete} className="text-sm text-red-500">Delete</button>
+            <Button variant="ghost" onClick={() => setIsEditing(true)}>Edit</Button>
+            <Button variant="ghost" color="destructive" onClick={handleDelete}>Delete</Button>
           </>
         )}
-      </div>
+      </CardFooter>
 
       {isReplying && (
-        <CommentForm parentId={comment.comment_id} onCommentPosted={handleReplySuccess} />
+        <div className="pl-4 border-l-2 ml-4">
+          <CommentForm parentId={comment.comment_id} onCommentPosted={handleReplySuccess} />
+        </div>
       )}
 
       {showReplies && (
-        <div className="pl-4 border-l-2 border-gray-700 mt-2">
+        <div className="pl-4 border-l-2 ml-4">
           {replies.map(reply => (
             <CommentCard key={reply.comment_id} comment={reply} onCommentDeleted={handleShowReplies} />
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 };

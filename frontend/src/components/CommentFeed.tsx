@@ -19,9 +19,9 @@ export const CommentFeed = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Create a new comment</h2>
+      {/* <h2 className="text-xl font-semibold mb-4">Post a comment</h2> */}
       <CommentForm onCommentPosted={fetchComments} />
-      <hr className="my-6 border-gray-700" />
+      <hr className="my-6" />
       <h2 className="text-xl font-semibold mb-4">Feed</h2>
       {comments.map(comment => (
         <CommentCard key={comment.comment_id} comment={comment} onCommentDeleted={fetchComments} />

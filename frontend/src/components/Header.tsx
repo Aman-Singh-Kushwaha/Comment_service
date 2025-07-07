@@ -12,7 +12,11 @@ export const Header = () => {
       <Link href="/" className="text-lg font-bold">Comments Service</Link>
       <div>
         {user ? (
-          <Button onClick={logout}>Logout</Button>
+          <div className="flex items-center space-x-4">
+            <span className="text-md font-semibold">{user.username}</span>
+            {/* Notification button Here */}
+            <Button onClick={logout}>Logout</Button>
+          </div>
         ) : (
           <div className="space-x-2">
             <Button asChild>
