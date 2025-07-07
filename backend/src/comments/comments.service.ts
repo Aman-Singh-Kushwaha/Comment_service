@@ -1,9 +1,11 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import {
   Injectable,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Queue } from 'bullmq';
 import { DataSource, Repository } from 'typeorm';
 import { Comment } from './comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -15,6 +17,7 @@ export class CommentsService {
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
     private readonly dataSource: DataSource,
+    @InjectQueue('notifications') private readonly notificationsQueue: Queue,
   ) {}
 
   async create(
@@ -29,7 +32,26 @@ export class CommentsService {
       parentId: createCommentDto.parentId,
       author: { id: authorId },
     });
-    return this.commentRepository.save(newComment);
+    const savedComment = await this.commentRepository.save(newComment);
+
+    if (savedComment.parentId) {
+      const parentComment = await this.commentRepository.findOne({
+        where: { id: savedComment.parentId, isDeleted: false },
+        relations: ['author'],
+      });
+
+      // Notify only if parent comment exists and the author is not the one replying
+      if (parentComment && parentComment.author.id !== authorId) {
+        await this.notificationsQueue.add('send-notification', {
+          recipientId: parentComment.author.id,
+          senderId: authorId,
+          commentId: savedComment.id,
+          parentId: parentComment.id,
+        });
+      }
+    }
+
+    return savedComment;
   }
 
   private getChildrenCountSubquery() {
