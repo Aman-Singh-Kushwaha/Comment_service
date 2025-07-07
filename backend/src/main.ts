@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors(); // Allow all CORS policy
+
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); //for excluding password 
 
   const config = new DocumentBuilder()
