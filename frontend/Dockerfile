@@ -9,7 +9,6 @@ WORKDIR /usr/src/app
 FROM base AS dependencies
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --frozen-lockfile
-RUN pnpm install tailwindcss @tailwindcss/postcss autoprefixer
 
 # --- Build Stage ---
 FROM base AS build
