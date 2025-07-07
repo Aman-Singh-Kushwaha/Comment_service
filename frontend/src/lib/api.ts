@@ -93,3 +93,23 @@ export const restoreComment = async (commentId: string, token: string) => {
   });
   return handleResponse(response);
 };
+
+// Notifications
+export const getNotifications = async (token: string) => {
+  const response = await fetch(`${API_BASE_URL}/notifications`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+};
+
+export const markNotificationAsRead = async (notificationId: string, token: string) => {
+  const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+};

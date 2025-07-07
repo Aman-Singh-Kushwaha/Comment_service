@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
+import { Bell } from 'lucide-react';
+import { NotificationsPopover } from './NotificationsPopover';
+
 export const Header = () => {
   const { user, logout } = useAuth();
 
@@ -14,7 +17,7 @@ export const Header = () => {
         {user ? (
           <div className="flex items-center space-x-4">
             <span className="text-md font-semibold">{user.username}</span>
-            {/* Notification button Here */}
+            <NotificationsPopover />
             <Button onClick={logout}>Logout</Button>
           </div>
         ) : (
