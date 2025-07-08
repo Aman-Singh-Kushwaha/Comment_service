@@ -9,7 +9,6 @@ import {
   Get,
   Request,
   UnauthorizedException,
-  ConflictException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';

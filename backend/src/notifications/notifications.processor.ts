@@ -8,7 +8,13 @@ export class NotificationsProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<any, any, string>): Promise<any> {
+  async process(
+    job: Job<
+      { recipientId: string; senderId: string; commentId: string },
+      any,
+      string
+    >,
+  ): Promise<any> {
     switch (job.name) {
       case 'send-notification':
         return this.notificationsService.create(job.data);

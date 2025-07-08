@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, InternalServerErrorException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -23,16 +27,20 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwordHash, ...result } = user;
       return result as User;
-    } catch (error) {
-      if (error.code === '23505') {            // PostgreSQL unique violation error code
-        if (error.detail.includes('username')) {
+    } catch (error: unknown) {
+      // PostgreSQL unique violation error code
+      const err = error as { code?: string; detail?: string };
+      if (err.code === '23505') {
+        if (err.detail?.includes('username')) {
           throw new ConflictException('Username already exists');
         }
-        if (error.detail.includes('email')) {
+        if (err.detail?.includes('email')) {
           throw new ConflictException('Email already exists');
         }
       }
-      throw new InternalServerErrorException( 'Registration Failed due to unexpected error')
+      throw new InternalServerErrorException(
+        'Registration Failed due to unexpected error',
+      );
     }
   }
 

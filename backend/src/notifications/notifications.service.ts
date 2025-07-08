@@ -33,7 +33,7 @@ export class NotificationsService {
 
   async markAsRead(id: string, userId: string): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({
-        where: { id, recipient: { id: userId } }
+      where: { id, recipient: { id: userId } },
     });
     if (!notification) {
       throw new NotFoundException(`Notification with ID ${id} not found`);

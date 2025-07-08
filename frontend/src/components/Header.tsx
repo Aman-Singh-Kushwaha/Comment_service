@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
-import { Bell } from 'lucide-react';
 import { NotificationsPopover } from './NotificationsPopover';
 
 export const Header = () => {

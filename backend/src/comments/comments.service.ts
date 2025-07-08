@@ -210,7 +210,9 @@ export class CommentsService {
 
     await this.dataSource.query(query, [commentId]);
 
-    const restoredComment = await this.commentRepository.findOneBy({ id: commentId });
+    const restoredComment = await this.commentRepository.findOneBy({
+      id: commentId,
+    });
     if (!restoredComment) {
       // This should ideally not happen if the query succeeded
       throw new NotFoundException('Restored comment could not be found.');

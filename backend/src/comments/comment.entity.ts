@@ -8,7 +8,7 @@ import {
   JoinColumn,
   OneToMany,
   Index,
-  Check
+  Check,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 

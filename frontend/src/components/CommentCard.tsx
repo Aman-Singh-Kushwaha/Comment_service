@@ -7,7 +7,7 @@ import { getReplies, deleteComment, updateComment, restoreComment } from '@/lib/
 import { CommentForm } from './CommentForm';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Pencil } from 'lucide-react';
 
 // Define the shape of a comment
