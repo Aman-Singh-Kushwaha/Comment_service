@@ -82,3 +82,14 @@ export const deleteComment = async (commentId: string, token: string) => {
   });
   return handleResponse(response);
 };
+
+// Restore a comment
+export const restoreComment = async (commentId: string, token: string) => {
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/restore`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+};

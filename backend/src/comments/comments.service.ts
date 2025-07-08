@@ -71,13 +71,15 @@ export class CommentsService {
         'comment.content',
         'comment.parentId',
         'comment.isEdited',
+        'comment.isDeleted',
+        'comment.deletedAt',
         'comment.createdAt',
+        'comment.updatedAt',
         'author.id',
         'author.username',
       ])
       .addSelect(`(${this.getChildrenCountSubquery()})`, 'childrenCount')
-      .leftJoin('comment.author', 'author')
-      .where('comment.isDeleted = false');
+      .leftJoin('comment.author', 'author');
   }
 
   async findAll(): Promise<any[]> {

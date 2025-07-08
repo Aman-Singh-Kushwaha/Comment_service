@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getComments } from '@/lib/api';
+import { useAuth,  } from '@/contexts/AuthContext';
 import { Comment, CommentCard } from './CommentCard';
 import { CommentForm } from './CommentForm';
 
 export const CommentFeed = () => {
   const [comments, setComments] = useState<Comment[]>([]);
+  const {user} = useAuth();
 
   const fetchComments = useCallback(async () => {
     const fetchedComments = await getComments();
@@ -19,12 +21,15 @@ export const CommentFeed = () => {
 
   return (
     <div>
-      {/* <h2 className="text-xl font-semibold mb-4">Post a comment</h2> */}
       <CommentForm onCommentPosted={fetchComments} />
       <hr className="my-6" />
       <h2 className="text-xl font-semibold mb-4">Feed</h2>
       {comments.map(comment => (
-        <CommentCard key={comment.comment_id} comment={comment} onCommentDeleted={fetchComments} />
+
+        // show other's non-deleted reply and user's deleted + non-deleted reply
+        
+        (!comment.comment_is_deleted || comment.author_id===user?.id) 
+          && <CommentCard key={comment.comment_id} comment={comment} onCommentAction={fetchComments} />
       ))}
     </div>
   );
