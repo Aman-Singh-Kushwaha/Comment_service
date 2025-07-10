@@ -16,7 +16,7 @@ const handleResponse = async (response: Response) => {
 
 // Auth
 export const login = async (credentials: LoginCredentials) => {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
@@ -25,7 +25,7 @@ export const login = async (credentials: LoginCredentials) => {
 };
 
 export const register = async (data: RegisterData) => {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+  const response = await fetch(`${API_BASE_URL}/auth/register/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -36,19 +36,19 @@ export const register = async (data: RegisterData) => {
 
 // Get top-level comments
 export const getComments = async () => {
-  const response = await fetch(`${API_BASE_URL}/comments`);
+  const response = await fetch(`${API_BASE_URL}/comments/`);
   return handleResponse(response);
 };
 
 // Get replies for a comment
 export const getReplies = async (commentId: string) => {
-  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/replies`);
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/replies/`);
   return handleResponse(response);
 };
 
 // Post a new comment or a reply
 export const postComment = async (content: string, parentId: string | null, token: string) => {
-  const response = await fetch(`${API_BASE_URL}/comments`, {
+  const response = await fetch(`${API_BASE_URL}/comments/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export const postComment = async (content: string, parentId: string | null, toke
 
 // Update a comment
 export const updateComment = async (commentId: string, content: string, token: string) => {
-  const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ export const updateComment = async (commentId: string, content: string, token: s
 
 // Delete a comment
 export const deleteComment = async (commentId: string, token: string) => {
-  const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -85,7 +85,7 @@ export const deleteComment = async (commentId: string, token: string) => {
 
 // Restore a comment
 export const restoreComment = async (commentId: string, token: string) => {
-  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/restore`, {
+  const response = await fetch(`${API_BASE_URL}/comments/${commentId}/restore/`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -96,7 +96,7 @@ export const restoreComment = async (commentId: string, token: string) => {
 
 // Notifications
 export const getNotifications = async (token: string) => {
-  const response = await fetch(`${API_BASE_URL}/notifications`, {
+  const response = await fetch(`${API_BASE_URL}/notifications/`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -105,7 +105,7 @@ export const getNotifications = async (token: string) => {
 };
 
 export const markNotificationAsRead = async (notificationId: string, token: string) => {
-  const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+  const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read/`, {
     method: 'PATCH',
     headers: {
       'Authorization': `Bearer ${token}`,
