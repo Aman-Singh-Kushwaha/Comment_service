@@ -1,11 +1,10 @@
-import { InjectQueue } from '@nestjs/bullmq';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   Injectable,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Queue } from 'bullmq';
 import { DataSource, Repository } from 'typeorm';
 import { Comment } from './comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -17,7 +16,7 @@ export class CommentsService {
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
     private readonly dataSource: DataSource,
-    @InjectQueue('notifications') private readonly notificationsQueue: Queue,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(
@@ -42,11 +41,10 @@ export class CommentsService {
 
       // Notify only if parent comment exists and the author is not the one replying
       if (parentComment && parentComment.author.id !== authorId) {
-        await this.notificationsQueue.add('send-notification', {
+        this.eventEmitter.emit('notification.create', {
           recipientId: parentComment.author.id,
           senderId: authorId,
           commentId: savedComment.id,
-          parentId: parentComment.id,
         });
       }
     }

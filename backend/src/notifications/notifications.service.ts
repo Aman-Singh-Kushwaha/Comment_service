@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './notification.entity';
@@ -10,6 +11,7 @@ export class NotificationsService {
     private readonly notificationRepository: Repository<Notification>,
   ) {}
 
+  @OnEvent('notification.create')
   async create(data: {
     recipientId: string;
     senderId: string;
