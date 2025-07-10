@@ -95,7 +95,7 @@ export const CommentCard = ({ comment, onCommentAction }: CommentCardProps) => {
 
   return (
     <Card className="my-4 bg-neutral-100 border-none shadow-none">
-      <CardTitle>
+      <CardTitle className="p-2 pb-0">
         <div className="flex items-center space-x-4">
           <div className="font-bold">{comment.author_username}</div>
           <div className="text-sm text-muted-foreground">
